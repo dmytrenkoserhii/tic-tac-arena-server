@@ -9,7 +9,7 @@ For v1, Supabase owns most backend capabilities:
 - Realtime updates through Supabase Realtime
 - Move validation through Postgres RPC
 
-The NestJS app is kept as the future custom backend runtime, but it is not yet part of the core gameplay path.
+The NestJS app owns protected mutation endpoints. The web app still uses Supabase directly for Auth, reads, and Realtime subscriptions.
 
 ## Current Role
 
@@ -53,6 +53,23 @@ Install dependencies:
 ```bash
 pnpm install
 ```
+
+Create a local env file:
+
+```bash
+cp .env.example .env
+```
+
+Fill in:
+
+```bash
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
+WEB_ORIGIN=http://localhost:5173
+PORT=3000
+```
+
+Use the public Supabase anon/publishable key here. Do not use service role unless a future server-only feature explicitly requires it.
 
 Run Nest in watch mode:
 
