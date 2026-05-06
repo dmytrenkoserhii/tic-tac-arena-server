@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 
+import { throwSupabaseBadRequest } from '../../../supabase/supabase-error'
 import { SupabaseService } from '../../../supabase/supabase.service'
 import type { CreateGameDto, CreateMoveDto } from '../dtos'
 import type { Game, Move } from '../types'
@@ -26,7 +27,7 @@ export class GamesService {
       .single<Room>()
 
     if (roomError) {
-      throw new BadRequestException(roomError.message)
+      throwSupabaseBadRequest(roomError, 'Room was not found.')
     }
 
     if (room.host_id !== userId) {
@@ -47,7 +48,7 @@ export class GamesService {
       .maybeSingle<Game>()
 
     if (activeGameError) {
-      throw new BadRequestException(activeGameError.message)
+      throwSupabaseBadRequest(activeGameError, 'Active game could not be loaded.')
     }
 
     if (activeGame) {
@@ -65,7 +66,7 @@ export class GamesService {
       .single<Game>()
 
     if (error) {
-      throw new BadRequestException(error.message)
+      throwSupabaseBadRequest(error, 'Game was not created. Try again.')
     }
 
     return data
@@ -96,7 +97,7 @@ export class GamesService {
       .single<Move>()
 
     if (error) {
-      throw new BadRequestException(error.message)
+      throwSupabaseBadRequest(error, 'Move was not accepted. Try again.')
     }
 
     return data

@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import type { User } from '@supabase/supabase-js'
 
+import { throwSupabaseBadRequest } from '../../../supabase/supabase-error'
 import { SupabaseService } from '../../../supabase/supabase.service'
 import type { Profile } from '../types'
 
@@ -13,7 +14,11 @@ export class ProfilesService {
     const { data: userData, error: userError } = await supabase.auth.getUser()
 
     if (userError || !userData.user) {
-      throw new BadRequestException(userError?.message ?? 'User was not found.')
+      if (userError) {
+        throwSupabaseBadRequest(userError, 'User was not found.')
+      }
+
+      throw new BadRequestException('User was not found.')
     }
 
     const { data, error } = await supabase
@@ -33,7 +38,7 @@ export class ProfilesService {
       .single<Profile>()
 
     if (error) {
-      throw new BadRequestException(error.message)
+      throwSupabaseBadRequest(error, 'Profile was not synced. Try again.')
     }
 
     return data

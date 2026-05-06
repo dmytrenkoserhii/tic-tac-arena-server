@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common'
 
 import { SupabaseService } from '../../../supabase/supabase.service'
+import { throwSupabaseBadRequest } from '../../../supabase/supabase-error'
 import type { JoinRoomDto } from '../dtos'
 import type { Room } from '../types'
 
@@ -45,9 +46,11 @@ export class RoomsService {
       }
     }
 
-    throw new BadRequestException(
-      lastError?.message ?? 'Room was not created. Try again.',
-    )
+    if (lastError) {
+      throwSupabaseBadRequest(lastError, 'Room was not created. Try again.')
+    }
+
+    throw new BadRequestException('Room was not created. Try again.')
   }
 
   async joinRoom(
@@ -75,7 +78,7 @@ export class RoomsService {
       .maybeSingle<Room>()
 
     if (error) {
-      throw new BadRequestException(error.message)
+      throwSupabaseBadRequest(error, JOIN_ROOM_ERROR)
     }
 
     if (!data) {
@@ -98,7 +101,7 @@ export class RoomsService {
       .single<Room>()
 
     if (error) {
-      throw new BadRequestException(error.message)
+      throwSupabaseBadRequest(error, 'The room was closed.')
     }
 
     if (!data) {
