@@ -13,6 +13,7 @@ The NestJS app owns protected mutation endpoints. The web app still uses Supabas
 
 Current protected mutation endpoints:
 
+- `POST /profiles/sync`
 - `POST /rooms`
 - `POST /rooms/join`
 - `POST /rooms/:roomId/leave`

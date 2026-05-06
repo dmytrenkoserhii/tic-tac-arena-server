@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { GamesModule } from './modules/games/games.module'
+import { ProfilesModule } from './modules/profiles/profiles.module'
 import { RoomsModule } from './modules/rooms/rooms.module'
 import { SupabaseModule } from './supabase/supabase.module'
 import { appConfig } from './config/app.config'
@@ -15,6 +16,7 @@ import { appConfig } from './config/app.config'
       load: [appConfig],
     }),
     GamesModule,
+    ProfilesModule,
     RoomsModule,
     SupabaseModule,
   ],
