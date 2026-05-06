@@ -11,6 +11,14 @@ For v1, Supabase owns most backend capabilities:
 
 The NestJS app owns protected mutation endpoints. The web app still uses Supabase directly for Auth, reads, and Realtime subscriptions.
 
+Current protected mutation endpoints:
+
+- `POST /rooms`
+- `POST /rooms/join`
+- `POST /rooms/:roomId/leave`
+- `POST /games`
+- `POST /games/:gameId/moves`
+
 ## Current Role
 
 This repository currently owns database schema history:
