@@ -149,6 +149,47 @@ Run tests:
 pnpm test
 ```
 
+## Deployment Env Inventory
+
+This project is not Dockerized yet. Use this inventory when adding Docker, CI/CD, or hosted environments later.
+
+### Web Runtime
+
+Defined in `../tic-tac-arena-web`.
+
+| Variable | Local value | Production value | Notes |
+| --- | --- | --- | --- |
+| `VITE_SUPABASE_URL` | Supabase project URL | Supabase project URL | Public URL used by the browser. |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anon/publishable key | Supabase anon/publishable key | Safe for browser use when RLS is enabled. Never use service role here. |
+| `VITE_API_URL` | `http://localhost:3000` | Public Nest API origin | Must not include a trailing slash. |
+
+### Server Runtime
+
+Defined in this repository.
+
+| Variable | Local value | Production value | Notes |
+| --- | --- | --- | --- |
+| `SUPABASE_URL` | Supabase project URL | Supabase project URL | Same value as `VITE_SUPABASE_URL`, without the `VITE_` prefix. |
+| `SUPABASE_ANON_KEY` | Supabase anon/publishable key | Supabase anon/publishable key | Used with the user's JWT for RLS-protected requests. |
+| `WEB_ORIGIN` | `http://localhost:5173` | Public web app origin | Used for CORS. Must match the deployed frontend origin. |
+| `PORT` | `3000` | Platform-provided or configured port | The Nest listener port. |
+
+### Supabase Configuration
+
+These settings live in the Supabase dashboard, not in either repository:
+
+- Google Auth provider client id and secret.
+- Site URL and redirect URLs for local and production web origins.
+- Database schema from `supabase/migrations`.
+- Realtime enabled for `rooms`, `games`, and `moves`.
+
+### Secret Rules
+
+- Do not put Supabase service-role keys in the web app.
+- Do not commit `.env`, `.env.local`, or production secrets.
+- Keep OAuth provider secrets in Supabase or the deployment secret manager.
+- Introduce `SUPABASE_SERVICE_ROLE_KEY` only when a future server-only admin feature explicitly needs it.
+
 ## When Nest Should Be Used
 
 Prefer Supabase for simple v1 flows. Add Nest runtime logic when we need:
