@@ -11,14 +11,52 @@ For v1, Supabase owns most backend capabilities:
 
 The NestJS app owns protected mutation endpoints. The web app still uses Supabase directly for Auth, reads, and Realtime subscriptions.
 
+## Hybrid Backend Boundary
+
+The current v1 architecture is intentionally hybrid:
+
+- The web app signs users in with Supabase Auth.
+- The web app sends the Supabase access token to Nest as `Authorization: Bearer <access_token>`.
+- `SupabaseAuthGuard` validates that token before protected controller methods run.
+- Nest creates a per-request Supabase client with the same user token, not a service-role key.
+- Supabase Row Level Security still decides what the authenticated user can read or mutate.
+- The web app reads `profiles`, `rooms`, `games`, and `moves` directly from Supabase.
+- The web app subscribes to Supabase Realtime for `rooms`, `games`, and `moves`.
+- Nest owns writes and RPC calls that represent gameplay mutations.
+
+In short: web handles session, reads, and realtime; Nest handles protected commands; Supabase remains the database and authorization boundary.
+
 Current protected mutation endpoints:
 
-- `POST /profiles/sync`
-- `POST /rooms`
-- `POST /rooms/join`
-- `POST /rooms/:roomId/leave`
-- `POST /games`
-- `POST /games/:gameId/moves`
+All endpoints below require:
+
+```http
+Authorization: Bearer <supabase_access_token>
+Content-Type: application/json
+```
+
+| Endpoint | Body | Responsibility |
+| --- | --- | --- |
+| `POST /profiles/sync` | none | Creates or updates the signed-in user's profile from Supabase Auth metadata. |
+| `POST /rooms` | none | Creates a private waiting room for the signed-in host. |
+| `POST /rooms/join` | `{ "code": "ABC123" }` | Joins the signed-in user to an available waiting room. |
+| `POST /rooms/:roomId/leave` | none | Closes a room when a player leaves. |
+| `POST /games` | `{ "roomId": "..." }` | Starts or returns the active game for a ready room. Host only. |
+| `POST /games/:gameId/moves` | `{ "cellIndex": 0 }` | Creates a move through the `make_move` RPC. |
+
+Expected response bodies are the affected Supabase records: `profile`, `room`, `game`, or `move`.
+
+Expected error responses use Nest's standard shape:
+
+```json
+{
+  "message": "It is not your turn.",
+  "error": "Bad Request",
+  "statusCode": 400
+}
+```
+
+Supabase and RPC errors should be normalized before they leave the server. Keep user-facing messages in `src/supabase/supabase-error.ts`.
 
 ## Current Role
 
@@ -84,6 +122,19 @@ Run Nest in watch mode:
 
 ```bash
 pnpm start:dev
+```
+
+Run the web app from the sibling repository:
+
+```bash
+cd ../tic-tac-arena-web
+pnpm dev
+```
+
+The web env should point to this API:
+
+```bash
+VITE_API_URL=http://localhost:3000
 ```
 
 Build Nest:
