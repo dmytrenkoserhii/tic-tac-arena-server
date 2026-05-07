@@ -1,24 +1,24 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
-import type { User } from '@supabase/supabase-js'
+import { BadRequestException, Injectable } from '@nestjs/common';
+import type { User } from '@supabase/supabase-js';
 
-import { throwSupabaseBadRequest } from '../../../supabase/supabase-error'
-import { SupabaseService } from '../../../supabase/supabase.service'
-import type { Profile } from '../types'
+import { throwSupabaseBadRequest } from '../../../supabase/supabase-error';
+import { SupabaseService } from '../../../supabase/supabase.service';
+import type { Profile } from '../types';
 
 @Injectable()
 export class ProfilesService {
   constructor(private readonly supabaseService: SupabaseService) {}
 
   async syncProfile(accessToken: string) {
-    const supabase = this.supabaseService.createUserClient(accessToken)
-    const { data: userData, error: userError } = await supabase.auth.getUser()
+    const supabase = this.supabaseService.createUserClient(accessToken);
+    const { data: userData, error: userError } = await supabase.auth.getUser();
 
     if (userError || !userData.user) {
       if (userError) {
-        throwSupabaseBadRequest(userError, 'User was not found.')
+        throwSupabaseBadRequest(userError, 'User was not found.');
       }
 
-      throw new BadRequestException('User was not found.')
+      throw new BadRequestException('User was not found.');
     }
 
     const { data, error } = await supabase
@@ -35,18 +35,19 @@ export class ProfilesService {
         { onConflict: 'id' },
       )
       .select('id, email, display_name, avatar_url')
-      .single<Profile>()
+      .single<Profile>();
 
     if (error) {
-      throwSupabaseBadRequest(error, 'Profile was not synced. Try again.')
+      throwSupabaseBadRequest(error, 'Profile was not synced. Try again.');
     }
 
-    return data
+    return data;
   }
 }
 
 function getStringMetadata(user: User, key: string) {
-  const value = user.user_metadata[key]
+  const metadata = user.user_metadata as Record<string, unknown>;
+  const value = metadata[key];
 
-  return typeof value === 'string' ? value : null
+  return typeof value === 'string' ? value : null;
 }

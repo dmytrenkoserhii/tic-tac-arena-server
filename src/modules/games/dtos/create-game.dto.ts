@@ -1,3 +1,3 @@
 export type CreateGameDto = {
-  roomId?: string
-}
+  roomId?: string;
+};

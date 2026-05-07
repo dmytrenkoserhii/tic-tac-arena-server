@@ -1,10 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common';
 
-import { throwSupabaseBadRequest } from '../../../supabase/supabase-error'
-import { SupabaseService } from '../../../supabase/supabase.service'
-import type { CreateGameDto, CreateMoveDto } from '../dtos'
-import type { Game, Move } from '../types'
-import type { Room } from '../../rooms/types'
+import { throwSupabaseBadRequest } from '../../../supabase/supabase-error';
+import { SupabaseService } from '../../../supabase/supabase.service';
+import type { CreateGameDto, CreateMoveDto } from '../dtos';
+import type { Game, Move } from '../types';
+import type { Room } from '../../rooms/types';
 
 @Injectable()
 export class GamesService {
@@ -16,28 +16,28 @@ export class GamesService {
     userId: string,
   ) {
     if (!createGameDto.roomId) {
-      throw new BadRequestException('Room id is required.')
+      throw new BadRequestException('Room id is required.');
     }
 
-    const supabase = this.supabaseService.createUserClient(accessToken)
+    const supabase = this.supabaseService.createUserClient(accessToken);
     const { data: room, error: roomError } = await supabase
       .from('rooms')
       .select('id, code, host_id, guest_id, status')
       .eq('id', createGameDto.roomId)
-      .single<Room>()
+      .single<Room>();
 
     if (roomError) {
-      throwSupabaseBadRequest(roomError, 'Room was not found.')
+      throwSupabaseBadRequest(roomError, 'Room was not found.');
     }
 
     if (room.host_id !== userId) {
-      throw new BadRequestException('Only the host can start a game.')
+      throw new BadRequestException('Only the host can start a game.');
     }
 
     if (room.status !== 'ready' || !room.guest_id) {
       throw new BadRequestException(
         'The second player must join before starting a game.',
-      )
+      );
     }
 
     const { data: activeGame, error: activeGameError } = await supabase
@@ -45,14 +45,17 @@ export class GamesService {
       .select('id, room_id, x_player_id, o_player_id, status, winner_id')
       .eq('room_id', room.id)
       .eq('status', 'in_progress')
-      .maybeSingle<Game>()
+      .maybeSingle<Game>();
 
     if (activeGameError) {
-      throwSupabaseBadRequest(activeGameError, 'Active game could not be loaded.')
+      throwSupabaseBadRequest(
+        activeGameError,
+        'Active game could not be loaded.',
+      );
     }
 
     if (activeGame) {
-      return activeGame
+      return activeGame;
     }
 
     const { data, error } = await supabase
@@ -63,13 +66,13 @@ export class GamesService {
         x_player_id: room.host_id,
       })
       .select('id, room_id, x_player_id, o_player_id, status, winner_id')
-      .single<Game>()
+      .single<Game>();
 
     if (error) {
-      throwSupabaseBadRequest(error, 'Game was not created. Try again.')
+      throwSupabaseBadRequest(error, 'Game was not created. Try again.');
     }
 
-    return data
+    return data;
   }
 
   async createMove(
@@ -78,14 +81,14 @@ export class GamesService {
     createMoveDto: CreateMoveDto,
   ) {
     if (!gameId) {
-      throw new BadRequestException('Game id is required.')
+      throw new BadRequestException('Game id is required.');
     }
 
     if (
       typeof createMoveDto.cellIndex !== 'number' ||
       !Number.isInteger(createMoveDto.cellIndex)
     ) {
-      throw new BadRequestException('Cell index is required.')
+      throw new BadRequestException('Cell index is required.');
     }
 
     const { data, error } = await this.supabaseService
@@ -94,12 +97,12 @@ export class GamesService {
         cell_index_input: createMoveDto.cellIndex,
         game_id_input: gameId,
       })
-      .single<Move>()
+      .single<Move>();
 
     if (error) {
-      throwSupabaseBadRequest(error, 'Move was not accepted. Try again.')
+      throwSupabaseBadRequest(error, 'Move was not accepted. Try again.');
     }
 
-    return data
+    return data;
   }
 }

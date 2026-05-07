@@ -1,9 +1,9 @@
-import { Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common'
+import { Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common';
 
-import type { AuthenticatedRequest } from '../../../auth/authenticated-request.type'
-import { SupabaseAuthGuard } from '../../../auth/supabase-auth.guard'
-import type { JoinRoomDto } from '../dtos'
-import { RoomsService } from '../services'
+import type { AuthenticatedRequest } from '../../../auth/authenticated-request.type';
+import { SupabaseAuthGuard } from '../../../auth/supabase-auth.guard';
+import type { JoinRoomDto } from '../dtos';
+import { RoomsService } from '../services';
 
 @Controller('rooms')
 @UseGuards(SupabaseAuthGuard)
@@ -12,7 +12,7 @@ export class RoomsController {
 
   @Post()
   createRoom(@Req() request: AuthenticatedRequest) {
-    return this.roomsService.createRoom(request.accessToken, request.user.id)
+    return this.roomsService.createRoom(request.accessToken, request.user.id);
   }
 
   @Post('join')
@@ -24,7 +24,7 @@ export class RoomsController {
       request.accessToken,
       joinRoomDto,
       request.user.id,
-    )
+    );
   }
 
   @Post(':roomId/leave')
@@ -32,6 +32,6 @@ export class RoomsController {
     @Param('roomId') roomId: string,
     @Req() request: AuthenticatedRequest,
   ) {
-    return this.roomsService.leaveRoom(request.accessToken, roomId)
+    return this.roomsService.leaveRoom(request.accessToken, roomId);
   }
 }

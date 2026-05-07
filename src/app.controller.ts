@@ -1,8 +1,8 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common'
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 
-import { AppService } from './app.service'
-import type { AuthenticatedRequest } from './auth/authenticated-request.type'
-import { SupabaseAuthGuard } from './auth/supabase-auth.guard'
+import { AppService } from './app.service';
+import type { AuthenticatedRequest } from './auth/authenticated-request.type';
+import { SupabaseAuthGuard } from './auth/supabase-auth.guard';
 
 @Controller()
 export class AppController {
@@ -10,7 +10,7 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    return this.appService.getHello()
+    return this.appService.getHello();
   }
 
   @Get('me')
@@ -19,6 +19,6 @@ export class AppController {
     return {
       email: request.user.email,
       id: request.user.id,
-    }
+    };
   }
 }

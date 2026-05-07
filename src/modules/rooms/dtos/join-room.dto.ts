@@ -1,3 +1,3 @@
 export type JoinRoomDto = {
-  code?: string
-}
+  code?: string;
+};

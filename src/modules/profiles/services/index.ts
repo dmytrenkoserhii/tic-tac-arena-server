@@ -1,1 +1,1 @@
-export { ProfilesService } from './profiles.service'
+export { ProfilesService } from './profiles.service';

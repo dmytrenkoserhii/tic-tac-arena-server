@@ -1,8 +1,8 @@
-import type { Request } from 'express'
+import type { Request } from 'express';
 
-import type { AuthenticatedRequestUser } from '../supabase/supabase.service'
+import type { AuthenticatedRequestUser } from '../supabase/supabase.service';
 
 export type AuthenticatedRequest = Request & {
-  accessToken: string
-  user: AuthenticatedRequestUser
-}
+  accessToken: string;
+  user: AuthenticatedRequestUser;
+};

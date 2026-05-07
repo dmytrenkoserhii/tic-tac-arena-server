@@ -1,1 +1,1 @@
-export type { JoinRoomDto } from './join-room.dto'
+export type { JoinRoomDto } from './join-room.dto';

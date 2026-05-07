@@ -1,8 +1,8 @@
-import { Module } from '@nestjs/common'
+import { Module } from '@nestjs/common';
 
-import { SupabaseModule } from '../../supabase/supabase.module'
-import { ProfilesController } from './controllers'
-import { ProfilesService } from './services'
+import { SupabaseModule } from '../../supabase/supabase.module';
+import { ProfilesController } from './controllers';
+import { ProfilesService } from './services';
 
 @Module({
   controllers: [ProfilesController],

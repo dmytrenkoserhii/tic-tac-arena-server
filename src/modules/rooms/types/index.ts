@@ -1,1 +1,1 @@
-export type { Room } from './room.interface'
+export type { Room } from './room.interface';

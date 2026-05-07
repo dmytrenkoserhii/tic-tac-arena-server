@@ -1,1 +1,1 @@
-export { RoomsController } from './rooms.controller'
+export { RoomsController } from './rooms.controller';

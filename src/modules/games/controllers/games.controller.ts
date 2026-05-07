@@ -1,9 +1,9 @@
-import { Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common'
+import { Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common';
 
-import type { AuthenticatedRequest } from '../../../auth/authenticated-request.type'
-import { SupabaseAuthGuard } from '../../../auth/supabase-auth.guard'
-import type { CreateGameDto, CreateMoveDto } from '../dtos'
-import { GamesService } from '../services'
+import type { AuthenticatedRequest } from '../../../auth/authenticated-request.type';
+import { SupabaseAuthGuard } from '../../../auth/supabase-auth.guard';
+import type { CreateGameDto, CreateMoveDto } from '../dtos';
+import { GamesService } from '../services';
 
 @Controller('games')
 @UseGuards(SupabaseAuthGuard)
@@ -19,7 +19,7 @@ export class GamesController {
       request.accessToken,
       createGameDto,
       request.user.id,
-    )
+    );
   }
 
   @Post(':gameId/moves')
@@ -32,6 +32,6 @@ export class GamesController {
       request.accessToken,
       gameId,
       createMoveDto,
-    )
+    );
   }
 }

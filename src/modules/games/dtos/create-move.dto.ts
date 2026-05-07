@@ -1,3 +1,3 @@
 export type CreateMoveDto = {
-  cellIndex?: number
-}
+  cellIndex?: number;
+};
