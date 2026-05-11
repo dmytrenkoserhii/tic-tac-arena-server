@@ -42,6 +42,9 @@ lerna-debug.log*
 .env.production.local
 .env.local
 
+# Kubernetes local secrets
+k8s/secrets.yaml
+
 # temp directory
 .temp
 .tmp
