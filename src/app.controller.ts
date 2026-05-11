@@ -8,6 +8,16 @@ import { SupabaseAuthGuard } from './auth/supabase-auth.guard';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  @Get('health')
+  getHealth() {
+    return this.appService.getHealth();
+  }
+
+  @Get('ready')
+  getReady() {
+    return this.appService.getReady();
+  }
+
   @Get()
   getHello(): string {
     return this.appService.getHello();

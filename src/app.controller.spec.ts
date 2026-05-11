@@ -24,4 +24,22 @@ describe('AppController', () => {
       expect(appController.getHello()).toBe('Tic Tac Arena API');
     });
   });
+
+  describe('health', () => {
+    it('should return the health status', () => {
+      expect(appController.getHealth()).toEqual({
+        service: 'tic-tac-arena-api',
+        status: 'ok',
+      });
+    });
+  });
+
+  describe('ready', () => {
+    it('should return the readiness status', () => {
+      expect(appController.getReady()).toEqual({
+        service: 'tic-tac-arena-api',
+        status: 'ready',
+      });
+    });
+  });
 });
