@@ -27,6 +27,7 @@ RUN addgroup -S app && adduser -S app -G app
 COPY --from=builder --chown=app:app /app/package.json ./
 COPY --from=builder --chown=app:app /app/node_modules ./node_modules
 COPY --from=builder --chown=app:app /app/dist ./dist
+COPY --from=builder --chown=app:app /app/supabase ./supabase
 
 USER app
 
