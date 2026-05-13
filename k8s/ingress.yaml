@@ -3,21 +3,12 @@ kind: Ingress
 metadata:
   name: tic-tac-arena
   namespace: tic-tac-arena
-  annotations:
-    nginx.ingress.kubernetes.io/use-regex: 'true'
 spec:
   ingressClassName: nginx
   rules:
     - host: tic-tac-arena.localhost
       http:
         paths:
-          - path: /api/?(.*)
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: backend
-                port:
-                  number: 3000
           - path: /health
             pathType: Exact
             backend:
@@ -39,3 +30,25 @@ spec:
                 name: frontend
                 port:
                   number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tic-tac-arena-api
+  namespace: tic-tac-arena
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/use-regex: 'true'
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: tic-tac-arena.localhost
+      http:
+        paths:
+          - path: /api/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 3000
