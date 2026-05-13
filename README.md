@@ -66,18 +66,36 @@ This repository currently owns database schema history:
 supabase/migrations
 ```
 
-Commit SQL migrations here. Apply them manually in the Supabase SQL Editor during local development.
+Commit SQL migrations here. Apply them through the code-driven migration runner, not manually through the Supabase SQL Editor.
 
 ## Applying Migrations
 
-1. Open the Supabase project dashboard.
-2. Go to SQL Editor.
-3. Open the next migration file from `supabase/migrations`.
-4. Paste the full SQL into the editor.
-5. Run it.
-6. Verify the affected table/function/realtime behavior in the dashboard or web app.
+Create a local env file with a Supabase Postgres connection string:
 
-Apply migrations in numeric order.
+```bash
+DATABASE_URL=
+```
+
+For local development, run:
+
+```bash
+pnpm migrate:dev
+```
+
+For production-like execution after build, run:
+
+```bash
+pnpm build
+pnpm migrate:up
+```
+
+If an existing database was previously migrated manually, run this once to mark current migration files as already applied:
+
+```bash
+pnpm migrate:baseline
+```
+
+New migrations are applied in numeric filename order and recorded in `public.schema_migrations`.
 
 ## Important Supabase Objects
 
