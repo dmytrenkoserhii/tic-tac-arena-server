@@ -1,0 +1,67 @@
+name: Release Images
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  release-images:
+    name: Build and push Docker images
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout server
+        uses: actions/checkout@v4
+        with:
+          path: tic-tac-arena-server
+
+      - name: Checkout web
+        uses: actions/checkout@v4
+        with:
+          repository: dmytrenkoserhii/tic-tac-arena-web
+          token: ${{ secrets.WEB_REPO_READ_TOKEN }}
+          path: tic-tac-arena-web
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Prepare tags
+        id: tags
+        shell: bash
+        run: |
+          echo "release=v$(date -u +'%Y.%m.%d')-r${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "sha=sha-${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: tic-tac-arena-server
+          file: tic-tac-arena-server/docker/backend/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/tic-tac-arena-backend:${{ steps.tags.outputs.release }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/tic-tac-arena-backend:${{ steps.tags.outputs.sha }}
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: tic-tac-arena-web
+          file: tic-tac-arena-server/docker/frontend/Dockerfile
+          push: true
+          build-args: |
+            VITE_API_URL=${{ vars.VITE_API_URL }}
+            VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}
+            VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/tic-tac-arena-frontend:${{ steps.tags.outputs.release }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/tic-tac-arena-frontend:${{ steps.tags.outputs.sha }}

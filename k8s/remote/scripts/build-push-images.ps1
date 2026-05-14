@@ -10,6 +10,18 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Invoke-Checked {
+  param(
+    [Parameter(Mandatory = $true)]
+    [scriptblock]$Command
+  )
+
+  & $Command
+  if ($LASTEXITCODE -ne 0) {
+    throw "Command failed with exit code $LASTEXITCODE"
+  }
+}
+
 $serverRoot = Resolve-Path (Join-Path $PSScriptRoot "..\..\..")
 $workspaceRoot = Resolve-Path (Join-Path $serverRoot "..")
 $webRoot = Join-Path $workspaceRoot "tic-tac-arena-web"
@@ -35,21 +47,30 @@ foreach ($key in @("SUPABASE_URL", "SUPABASE_ANON_KEY")) {
 $backendImage = "$ImageRepository/tic-tac-arena-backend:$Tag"
 $frontendImage = "$ImageRepository/tic-tac-arena-frontend:$Tag"
 
-docker build `
-  -f (Join-Path $serverRoot "docker\backend\Dockerfile") `
-  -t $backendImage `
-  $serverRoot
+Invoke-Checked {
+  docker build `
+    -f (Join-Path $serverRoot "docker\backend\Dockerfile") `
+    -t $backendImage `
+    $serverRoot
+}
 
-docker build `
-  -f (Join-Path $serverRoot "docker\frontend\Dockerfile") `
-  -t $frontendImage `
-  --build-arg "VITE_API_URL=$ApiUrl" `
-  --build-arg "VITE_SUPABASE_URL=$($envValues['SUPABASE_URL'])" `
-  --build-arg "VITE_SUPABASE_ANON_KEY=$($envValues['SUPABASE_ANON_KEY'])" `
-  $webRoot
+Invoke-Checked {
+  docker build `
+    -f (Join-Path $serverRoot "docker\frontend\Dockerfile") `
+    -t $frontendImage `
+    --build-arg "VITE_API_URL=$ApiUrl" `
+    --build-arg "VITE_SUPABASE_URL=$($envValues['SUPABASE_URL'])" `
+    --build-arg "VITE_SUPABASE_ANON_KEY=$($envValues['SUPABASE_ANON_KEY'])" `
+    $webRoot
+}
 
-docker push $backendImage
-docker push $frontendImage
+Invoke-Checked {
+  docker push $backendImage
+}
+
+Invoke-Checked {
+  docker push $frontendImage
+}
 
 Write-Host "Pushed images:"
 Write-Host "  $backendImage"
