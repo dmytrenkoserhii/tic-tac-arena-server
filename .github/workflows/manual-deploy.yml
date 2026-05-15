@@ -1,0 +1,71 @@
+name: Manual Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Docker image release tag to deploy, for example v2026.05.14-r1
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy release to Hetzner k3s
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout server
+        uses: actions/checkout@v4
+
+      - name: Validate release images
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$RELEASE_TAG" =~ ^(v[0-9]{4}\.[0-9]{2}\.[0-9]{2}-r[0-9]+|sha-[a-f0-9]{8})$ ]]; then
+            echo "Invalid release_tag: $RELEASE_TAG"
+            echo "Expected vYYYY.MM.DD-rN or sha-xxxxxxxx"
+            exit 1
+          fi
+          docker manifest inspect "${DOCKERHUB_USERNAME}/tic-tac-arena-backend:${RELEASE_TAG}" >/dev/null
+          docker manifest inspect "${DOCKERHUB_USERNAME}/tic-tac-arena-frontend:${RELEASE_TAG}" >/dev/null
+
+      - name: Prepare SSH key
+        env:
+          HETZNER_SSH_KEY: ${{ secrets.HETZNER_SSH_KEY }}
+          HETZNER_HOST: ${{ secrets.HETZNER_HOST }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          printf '%s\n' "$HETZNER_SSH_KEY" > ~/.ssh/tic-tac-arena-deploy
+          chmod 600 ~/.ssh/tic-tac-arena-deploy
+          ssh-keyscan -H "$HETZNER_HOST" >> ~/.ssh/known_hosts
+
+      - name: Upload deploy bundle
+        env:
+          HETZNER_HOST: ${{ secrets.HETZNER_HOST }}
+          HETZNER_SSH_PORT: ${{ secrets.HETZNER_SSH_PORT }}
+          HETZNER_SSH_USER: ${{ secrets.HETZNER_SSH_USER }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          DEPLOY_DIR="/tmp/tic-tac-arena-deploy/${RELEASE_TAG}"
+          ssh -i ~/.ssh/tic-tac-arena-deploy -p "$HETZNER_SSH_PORT" "${HETZNER_SSH_USER}@${HETZNER_HOST}" "rm -rf '$DEPLOY_DIR' && mkdir -p '$DEPLOY_DIR'"
+          scp -i ~/.ssh/tic-tac-arena-deploy -P "$HETZNER_SSH_PORT" -r k8s/remote/* "${HETZNER_SSH_USER}@${HETZNER_HOST}:$DEPLOY_DIR/"
+
+      - name: Run remote deploy
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          HETZNER_HOST: ${{ secrets.HETZNER_HOST }}
+          HETZNER_SSH_PORT: ${{ secrets.HETZNER_SSH_PORT }}
+          HETZNER_SSH_USER: ${{ secrets.HETZNER_SSH_USER }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          DEPLOY_DIR="/tmp/tic-tac-arena-deploy/${RELEASE_TAG}"
+          ssh -i ~/.ssh/tic-tac-arena-deploy -p "$HETZNER_SSH_PORT" "${HETZNER_SSH_USER}@${HETZNER_HOST}" \
+            "cd '$DEPLOY_DIR' && IMAGE_REPOSITORY='$DOCKERHUB_USERNAME' RELEASE_TAG='$RELEASE_TAG' bash scripts/deploy-release.sh"
