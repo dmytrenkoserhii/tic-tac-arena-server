@@ -2,6 +2,7 @@ import {
   CallHandler,
   ExecutionContext,
   Injectable,
+  Logger,
   NestInterceptor,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
@@ -11,6 +12,8 @@ import { MonitoringService } from './monitoring.service';
 
 @Injectable()
 export class HttpMetricsInterceptor implements NestInterceptor {
+  private readonly logger = new Logger(HttpMetricsInterceptor.name);
+
   constructor(private readonly monitoringService: MonitoringService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
@@ -27,9 +30,18 @@ export class HttpMetricsInterceptor implements NestInterceptor {
         const durationSeconds =
           Number(process.hrtime.bigint() - startedAt) / 1_000_000_000;
 
+        const route = this.getRouteLabel(request);
+
         this.monitoringService.recordHttpRequest({
           method: request.method,
-          route: this.getRouteLabel(request),
+          route,
+          statusCode: response.statusCode,
+          durationSeconds,
+        });
+
+        this.logHttpRequest({
+          method: request.method,
+          route,
           statusCode: response.statusCode,
           durationSeconds,
         });
@@ -45,5 +57,40 @@ export class HttpMetricsInterceptor implements NestInterceptor {
     }
 
     return request.path;
+  }
+
+  private logHttpRequest(requestLog: {
+    method: string;
+    route: string;
+    statusCode: number;
+    durationSeconds: number;
+  }) {
+    if (this.isNoisyMonitoringRoute(requestLog.route)) {
+      return;
+    }
+
+    const message = JSON.stringify({
+      event: 'http_request',
+      method: requestLog.method,
+      route: requestLog.route,
+      statusCode: requestLog.statusCode,
+      durationMs: Math.round(requestLog.durationSeconds * 1000),
+    });
+
+    if (requestLog.statusCode >= 500) {
+      this.logger.error(message);
+      return;
+    }
+
+    if (requestLog.statusCode >= 400) {
+      this.logger.warn(message);
+      return;
+    }
+
+    this.logger.log(message);
+  }
+
+  private isNoisyMonitoringRoute(route: string) {
+    return route === '/health' || route === '/ready' || route === '/metrics';
   }
 }
