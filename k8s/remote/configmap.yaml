@@ -6,4 +6,4 @@ metadata:
 data:
   NODE_ENV: production
   PORT: '3000'
-  WEB_ORIGIN: http://tic-tac-arena.46.225.222.116.sslip.io
+  WEB_ORIGIN: https://tic-tac-arena.dmytrenko.dev
