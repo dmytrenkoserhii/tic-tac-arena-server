@@ -51,6 +51,7 @@ kubectl apply -f "$REMOTE_ROOT/ingress.yaml"
 
 kubectl rollout status deployment/backend -n "$NAMESPACE" --timeout=240s
 kubectl rollout status deployment/frontend -n "$NAMESPACE" --timeout=240s
+kubectl wait --for=condition=Ready --timeout=180s certificate/tic-tac-arena-tls -n "$NAMESPACE"
 
 curl -fsS "${APP_URL}/health" >/dev/null
 curl -fsS "${APP_URL}/ready" >/dev/null
