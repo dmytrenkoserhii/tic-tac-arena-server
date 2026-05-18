@@ -2,17 +2,36 @@
 
 This folder contains the Hetzner k3s manifests for Tic Tac Arena.
 
-The remote setup is intentionally separate from the local Docker Desktop manifests because it uses pushed registry images and a public temporary `sslip.io` host.
+The remote setup is intentionally separate from the local Docker Desktop manifests because it uses pushed registry images and the public production host.
 
 ## Current Remote Target
 
 ```text
 namespace: tic-tac-arena
-app host: tic-tac-arena.46.225.222.116.sslip.io
-api route: http://tic-tac-arena.46.225.222.116.sslip.io/api
+app host: tic-tac-arena.dmytrenko.dev
+api route: https://tic-tac-arena.dmytrenko.dev/api
 ```
 
-TLS and real project domains are intentionally handled in a later phase.
+TLS is issued by the existing cluster `cert-manager` setup with the `letsencrypt-prod` ClusterIssuer.
+
+DNS must contain:
+
+```text
+tic-tac-arena.dmytrenko.dev A 46.225.222.116
+```
+
+Supabase Auth must allow:
+
+```text
+https://tic-tac-arena.dmytrenko.dev
+https://tic-tac-arena.dmytrenko.dev/**
+```
+
+The GitHub Actions variable `VITE_API_URL` must be:
+
+```text
+https://tic-tac-arena.dmytrenko.dev/api
+```
 
 ## Required Local Files
 
@@ -79,7 +98,7 @@ kubectl --kubeconfig C:\Users\dmtrn\.kube\tic-tac-arena\hetzner-k3s.yaml rollout
 Browser:
 
 ```text
-http://tic-tac-arena.46.225.222.116.sslip.io/
+https://tic-tac-arena.dmytrenko.dev/
 ```
 
 ## Rollback

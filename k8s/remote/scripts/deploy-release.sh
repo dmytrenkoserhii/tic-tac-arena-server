@@ -5,7 +5,7 @@ IMAGE_REPOSITORY="${IMAGE_REPOSITORY:?IMAGE_REPOSITORY is required}"
 RELEASE_TAG="${RELEASE_TAG:?RELEASE_TAG is required}"
 
 NAMESPACE="tic-tac-arena"
-APP_URL="http://tic-tac-arena.46.225.222.116.sslip.io"
+APP_URL="https://tic-tac-arena.dmytrenko.dev"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REMOTE_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 RENDER_ROOT="$(mktemp -d)"

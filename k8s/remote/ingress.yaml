@@ -3,10 +3,18 @@ kind: Ingress
 metadata:
   name: tic-tac-arena
   namespace: tic-tac-arena
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - tic-tac-arena.dmytrenko.dev
+      secretName: tic-tac-arena-tls
   rules:
-    - host: tic-tac-arena.46.225.222.116.sslip.io
+    - host: tic-tac-arena.dmytrenko.dev
       http:
         paths:
           - path: /health
@@ -37,12 +45,19 @@ metadata:
   name: tic-tac-arena-api
   namespace: tic-tac-arena
   annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
     nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
     nginx.ingress.kubernetes.io/use-regex: 'true'
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - tic-tac-arena.dmytrenko.dev
+      secretName: tic-tac-arena-tls
   rules:
-    - host: tic-tac-arena.46.225.222.116.sslip.io
+    - host: tic-tac-arena.dmytrenko.dev
       http:
         paths:
           - path: /api/?(.*)
