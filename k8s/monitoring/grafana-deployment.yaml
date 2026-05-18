@@ -67,11 +67,13 @@ spec:
             - mountPath: /etc/grafana/provisioning/dashboards/dashboards.yml
               name: provisioning
               subPath: dashboards.yml
+            - mountPath: /etc/grafana/provisioning/dashboards/tic-tac-arena-dashboards.yml
+              name: tic-tac-arena-provisioning
+              subPath: tic-tac-arena-dashboards.yml
             - mountPath: /var/lib/grafana/dashboards
               name: dashboards
-            - mountPath: /var/lib/grafana/dashboards/tic-tac-arena-overview.json
+            - mountPath: /var/lib/grafana/tic-tac-arena-dashboards
               name: tic-tac-arena-dashboards
-              subPath: tic-tac-arena-overview.json
             - mountPath: /var/lib/grafana
               name: data
       volumes:
@@ -81,6 +83,9 @@ spec:
         - name: dashboards
           configMap:
             name: grafana-dashboards
+        - name: tic-tac-arena-provisioning
+          configMap:
+            name: tic-tac-arena-grafana-provisioning
         - name: tic-tac-arena-dashboards
           configMap:
             name: tic-tac-arena-grafana-dashboards
