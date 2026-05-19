@@ -69,3 +69,22 @@ jobs:
           DEPLOY_DIR="/tmp/tic-tac-arena-deploy/${RELEASE_TAG}"
           ssh -i ~/.ssh/tic-tac-arena-deploy -p "$HETZNER_SSH_PORT" "${HETZNER_SSH_USER}@${HETZNER_HOST}" \
             "cd '$DEPLOY_DIR' && IMAGE_REPOSITORY='$DOCKERHUB_USERNAME' RELEASE_TAG='$RELEASE_TAG' bash scripts/deploy-release.sh"
+
+      - name: Mark Sentry deploy
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ENVIRONMENT: ${{ vars.SENTRY_ENVIRONMENT }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${SENTRY_AUTH_TOKEN:-}" || -z "${SENTRY_ORG:-}" ]]; then
+            echo "Sentry deploy marker skipped because Sentry secrets are not configured."
+            exit 0
+          fi
+
+          curl -fsS \
+            -X POST "https://sentry.io/api/0/organizations/${SENTRY_ORG}/releases/${RELEASE_TAG}/deploys/" \
+            -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data "{\"environment\":\"${SENTRY_ENVIRONMENT:-production}\"}"

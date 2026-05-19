@@ -1,5 +1,6 @@
 export type AppConfig = {
   port: number;
+  sentryTestToken?: string;
   supabaseAnonKey: string;
   supabaseUrl: string;
   webOrigin: string;
@@ -7,6 +8,7 @@ export type AppConfig = {
 
 export const appConfig = (): AppConfig => ({
   port: Number(process.env.PORT ?? 3000),
+  sentryTestToken: process.env.SENTRY_TEST_TOKEN,
   supabaseAnonKey: readEnvVar('SUPABASE_ANON_KEY'),
   supabaseUrl: readEnvVar('SUPABASE_URL'),
   webOrigin: process.env.WEB_ORIGIN ?? 'http://localhost:5173',

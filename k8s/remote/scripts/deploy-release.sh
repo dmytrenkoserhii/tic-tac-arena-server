@@ -25,6 +25,7 @@ render_template() {
   sed \
     -e "s|__BACKEND_IMAGE__|${BACKEND_IMAGE}|g" \
     -e "s|__FRONTEND_IMAGE__|${FRONTEND_IMAGE}|g" \
+    -e "s|__RELEASE_TAG__|${RELEASE_TAG}|g" \
     "$source" > "$target"
 }
 

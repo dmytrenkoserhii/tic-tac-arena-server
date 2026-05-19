@@ -48,6 +48,12 @@ jobs:
           context: tic-tac-arena-server
           file: tic-tac-arena-server/docker/backend/Dockerfile
           push: true
+          build-args: |
+            SENTRY_BACKEND_PROJECT=${{ vars.SENTRY_BACKEND_PROJECT }}
+            SENTRY_ORG=${{ vars.SENTRY_ORG }}
+            SENTRY_RELEASE=${{ steps.tags.outputs.release }}
+          secrets: |
+            sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/tic-tac-arena-backend:${{ steps.tags.outputs.release }}
             ${{ secrets.DOCKERHUB_USERNAME }}/tic-tac-arena-backend:${{ steps.tags.outputs.sha }}
@@ -60,8 +66,15 @@ jobs:
           push: true
           build-args: |
             VITE_API_URL=${{ vars.VITE_API_URL }}
+            VITE_SENTRY_DSN=${{ secrets.VITE_SENTRY_DSN }}
+            VITE_SENTRY_ENVIRONMENT=${{ vars.SENTRY_ENVIRONMENT }}
+            VITE_SENTRY_RELEASE=${{ steps.tags.outputs.release }}
             VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}
             VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}
+            SENTRY_FRONTEND_PROJECT=${{ vars.SENTRY_FRONTEND_PROJECT }}
+            SENTRY_ORG=${{ vars.SENTRY_ORG }}
+          secrets: |
+            sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/tic-tac-arena-frontend:${{ steps.tags.outputs.release }}
             ${{ secrets.DOCKERHUB_USERNAME }}/tic-tac-arena-frontend:${{ steps.tags.outputs.sha }}

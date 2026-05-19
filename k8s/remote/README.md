@@ -33,6 +33,22 @@ The GitHub Actions variable `VITE_API_URL` must be:
 https://tic-tac-arena.dmytrenko.dev/api
 ```
 
+Sentry GitHub Actions secrets:
+
+```text
+SENTRY_AUTH_TOKEN=
+VITE_SENTRY_DSN=
+```
+
+Sentry GitHub Actions variables:
+
+```text
+SENTRY_BACKEND_PROJECT=tic-tac-arena-server
+SENTRY_ENVIRONMENT=production
+SENTRY_FRONTEND_PROJECT=tic-tac-arena-web
+SENTRY_ORG=
+```
+
 ## Required Local Files
 
 `tic-tac-arena-server/.env` must contain:
@@ -41,6 +57,8 @@ https://tic-tac-arena.dmytrenko.dev/api
 SUPABASE_URL=
 SUPABASE_ANON_KEY=
 DATABASE_URL=
+SENTRY_DSN=
+SENTRY_TEST_TOKEN=
 ```
 
 Local kubeconfig must exist at:
